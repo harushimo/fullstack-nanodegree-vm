@@ -43,9 +43,15 @@ sudo su - postgres
 psql
 CREATE DATABASE sportsvenue;
 CREATE USER vagrant WITH PASSWORD 'vagrant';
-GRANT ALL PRIVILEGES ON DATABASE sportsvenue TO sports;
+GRANT ALL PRIVILEGES ON DATABASE sportsvenue TO vagrant;
 \q
 exit
+```
+
+Please create sports user, the database_setup.py will run.
+```
+CREATE USER sports WITH PASSWORD 'sports';
+GRANT ALL PRIVILEGES ON DATABASE sportsvenue TO sports;
 ```
 
 For the create user, you can input any password you like.
@@ -76,6 +82,7 @@ To Add/Edit a new venue
 1. Type the venue name and description
 2. Enter the raw image url
 - Google your favorite venue image, click the option view image.  It will take you image url link. Copy that url and paste into the form. The image will render. Here is a sample page
+
 ![Raw image](/vagrant/catalog/static/images/view_image.png "Image Finder")
 
 ### Delete Venue
