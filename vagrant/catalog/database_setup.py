@@ -12,31 +12,32 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+
 class User(Base):
     """
     Create the table for registered users
     """
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key = True)
-    name = Column(String(100), nullable = False)
-    email = Column(String(250), nullable = False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    email = Column(String(250), nullable=False)
     picture = Column(String(250))
+
 
 class Arenas(Base):
     """
     Defines the sports arenas table
     """
     __tablename__ = 'arenas'
-    id = Column(Integer, primary_key = True)
-    name = Column(String(100), nullable = False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
     description = Column(String)
     image = Column(String(250))
     url = Column(String(250))
 
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship('User')
-
 
     @property
     def serialize(self):
@@ -50,8 +51,7 @@ class Arenas(Base):
             'url': self.url
         }
 
-#Creates Database
+# Creates Database
 
 engine = create_engine('postgresql://sports:sports@localhost/sportsvenue')
-
 Base.metadata.create_all(engine)

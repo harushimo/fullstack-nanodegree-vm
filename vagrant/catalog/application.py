@@ -221,6 +221,8 @@ def gdisconnect():
 # General Disconnect method
 @app.route('/logout')
 def show_logout():
+    """Logout of the session from a specific OAuth Provider
+    """
     if login_session['provider'] == 'google':
         gdisconnect()
         return redirect(url_for('show_venues'))
@@ -230,6 +232,8 @@ def show_logout():
 
 @app.route('/')
 def showMainPage():
+    """Shows All Venues on the main page
+    """
     return redirect(url_for('show_venues'))
 
 # Creates JSON Endpoint to view all venues
@@ -237,6 +241,15 @@ def showMainPage():
 
 @app.route('/venuefinder/JSON')
 def arenasJSON():
+    """Returns a json object for all venues
+    "arenas": [
+    {
+      "description": "",
+      "id": ,
+      "name": "",
+      "url": ""
+    }
+    """
     arenas = session.query(Arenas).all()
     return jsonify(arenas=[i.serialize for i in arenas])
 
@@ -245,6 +258,15 @@ def arenasJSON():
 
 @app.route('/venuefinder/<int:arenas_id>/JSON')
 def arenasSingleJSON(arenas_id):
+    """Returns a json object for a singleVenue
+    "arena": [
+    {
+      "description": "",
+      "id": ,
+      "name": "",
+      "url": ""
+    }
+    """
     arenas = session.query(Arenas).filter_by(id=arenas_id).one()
     return jsonify(arena=arenas.serialize)
 
@@ -255,8 +277,6 @@ def show_venues():
     """Shows all the favorite venues in database
     """
     venues = session.query(Arenas).all()
-    print "GET Request"
-    print venues
     return render_template('venue.html', venues=venues)
 
 # Add New Venue to the Arenas Database
@@ -264,7 +284,11 @@ def show_venues():
 
 @app.route('/venuefinder/new', methods=['GET', 'POST'])
 def NewVenue():
-
+    """Creates a new venue in the database
+    """
+    # Checking for user authenication
+    if 'username' not in login_session:
+        return redirect(url_for('show_login'))
     if request.method == 'POST':
         newVenue = Arenas(name=request.form['name'],
                           description=request.form['description'],
@@ -283,6 +307,9 @@ def NewVenue():
 # @login_required
 @app.route('/venuefinder/<int:arenas_id>/edit/', methods=['GET', 'POST'])
 def updateVenue(arenas_id):
+    """Authenicated users can update venue information
+    """
+    # Checking for user authenication
     if 'username' not in login_session:
         return redirect(url_for('show_login'))
 
@@ -291,6 +318,7 @@ def updateVenue(arenas_id):
     if not updatevenues:
         return redirect('/venuefinder')
 
+    # Checking for user authorization
     if updatevenues.user_id != login_session['user_id']:
         flash('You need to login for editing')
         return redirect(url_for('show_login'))
@@ -315,9 +343,15 @@ def updateVenue(arenas_id):
 
 @app.route('/venuefinder/<int:arenas_id>/delete/', methods=['GET', 'POST'])
 def deleteVenue(arenas_id):
+    """Authenicated Users can deleteVenue
+    """
     venueToBeDeleted = session.query(Arenas).filter_by(id=arenas_id).first()
+
+    # Checking for user authenication
     if 'username' not in login_session:
         return redirect(url_for('show_login'))
+
+    # Checking for user authorization
     if login_session['user_id'] != venueToBeDeleted.user_id:
         flash('You need to login for deleting')
         return redirect(url_for('show_login'))
@@ -330,6 +364,7 @@ def deleteVenue(arenas_id):
         return redirect(url_for('show_venues', venue=venueToBeDeleted))
     else:
         return render_template('deletevenue.html', venue=venueToBeDeleted)
+
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
